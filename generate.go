@@ -33,6 +33,7 @@ func (m *mdgen) generate(cmd *cobra.Command, w io.Writer) error {
 	m.examples(cmd, buff)
 	m.additionalHelpTopics(cmd, buff)
 	m.flags(cmd, buff)
+	m.environment(cmd, buff)
 	m.seeAlso(cmd, buff)
 
 	if err := m.subcommands(cmd, buff); err != nil {
@@ -86,6 +87,7 @@ func (m *mdgen) long(cmd *cobra.Command, buff *bytes.Buffer) {
 
 func (m *mdgen) useLine(cmd *cobra.Command, buff *bytes.Buffer) {
 	if cmd.Runnable() {
+		fmt.Fprint(buff, m.heading(h2, "Usage"))
 		fmt.Fprintf(buff, "```bash\n%s\n```\n\n", cmd.UseLine())
 	}
 }
@@ -108,6 +110,23 @@ func (m *mdgen) flags(cmd *cobra.Command, buff *bytes.Buffer) {
 
 	formatFlags(cmd.NonInheritedFlags(), "Flags")
 	formatFlags(cmd.InheritedFlags(), "Global Flags")
+}
+
+func (m *mdgen) environment(cmd *cobra.Command, buff *bytes.Buffer) {
+	if !hasEnvironment(cmd) {
+		return
+	}
+
+	buff.WriteString(m.heading(h2, "Environment"))
+	fmt.Fprintln(buff, "```")
+
+	padding := envPadding(cmd)
+
+	for _, envvar := range envVariables(cmd) {
+		fmt.Fprintf(buff, "  %-*s   %s\n", padding, envvar.Name, envvar.Usage)
+	}
+
+	fmt.Fprint(buff, "```\n\n")
 }
 
 func (m *mdgen) examples(cmd *cobra.Command, buff *bytes.Buffer) {
