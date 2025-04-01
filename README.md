@@ -155,6 +155,8 @@ A typical use of docsme is to update the CLI documentation in the `README.md` fi
 
 When used without parameters, the generated documentation is written to standard output.
 
+### Usage
+
 ```bash
 docsme [flags]
 ```
